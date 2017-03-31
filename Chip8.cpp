@@ -1,5 +1,8 @@
-// Chip8.cpp : Defines the entry point for the console application.
-//
+/**
+*
+* Program entry file.
+* 
+*/
 
 #include "Chip8CPU.h"
 #include "Chip8Memory.h"
