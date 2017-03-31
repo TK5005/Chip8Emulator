@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CHIP8CPU_H
+#define CHIP8CPU_H
 
 #include "Chip8Memory.h"
 #include <stack>
@@ -102,3 +103,5 @@ private:
 	void _FX55(unsigned short);
 	void _FX65(unsigned short);
 };
+
+#endif

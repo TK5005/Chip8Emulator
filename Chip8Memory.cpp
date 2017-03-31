@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Chip8Memory.h"
 
 Chip8Memory::Chip8Memory()

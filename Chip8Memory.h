@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CHIP8MEMORY_H
+#define CHIP8MEMORY_H
+
 #include <exception>
 
 namespace Chip8MemoryException {
@@ -11,9 +13,16 @@ namespace Chip8MemoryException {
 	};
 }
 
+/**
+*
+* Class: Chip8Memory
+* Description: Representation of the memory in a Chip8 computing system.
+*
+*/
 class Chip8Memory
 {
 public:
+	static const unsigned short MEMORY_SIZE = 4096;
 	Chip8Memory();
 	~Chip8Memory();
 	unsigned char getValue(unsigned short location);
@@ -21,6 +30,7 @@ public:
 	void clear();
 	bool isClear();
 private:
-	static const unsigned short MEMORY_SIZE = 4096;
 	unsigned char memory[MEMORY_SIZE];
 };
+
+#endif

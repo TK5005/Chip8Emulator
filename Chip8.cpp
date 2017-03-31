@@ -1,6 +1,6 @@
 /**
 *
-* Program entry file.
+* Program entry
 * 
 */
 
@@ -16,6 +16,8 @@ int main()
 	memory.setValue(0x200, 0x32);
 	memory.setValue(0x201, 0x53);
 	chip8CPU.cycle();
-    return 0;
+	//TODO: Draw Graphics
+	//TODO: Update Key Presses
+	return 0;
 }
 

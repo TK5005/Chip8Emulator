@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Chip8CPU.h"
 
 Chip8CPU::Chip8CPU(Chip8Memory* memory)
