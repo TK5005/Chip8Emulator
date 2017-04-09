@@ -1,0 +1,19 @@
+// Chip8.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+#include "Chip8CPU.h"
+#include "Chip8Memory.h"
+#include <stdio.h>
+#include <iostream>
+
+int main()
+{
+	Chip8Memory memory;
+	Chip8CPU chip8CPU(&memory);
+	memory.setValue(0x200, 0x32);
+	memory.setValue(0x201, 0x53);
+	chip8CPU.cycle();
+    return 0;
+}
+
