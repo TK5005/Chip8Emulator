@@ -1,0 +1,23 @@
+﻿  stdafx.cpp
+  unittest1.cpp
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(65): warning C4244: 'argument': conversion from 'unsigned short' to 'unsigned char', possible loss of data
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(69): warning C4244: 'argument': conversion from 'unsigned short' to 'unsigned char', possible loss of data
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(1033): warning C4244: 'argument': conversion from 'unsigned short' to 'unsigned char', possible loss of data
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(1034): warning C4244: 'argument': conversion from 'unsigned short' to 'unsigned char', possible loss of data
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(1043): warning C4244: 'argument': conversion from 'unsigned short' to 'unsigned char', possible loss of data
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(1045): warning C4244: 'argument': conversion from 'unsigned short' to 'unsigned char', possible loss of data
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(1073): warning C4101: 'ex': unreferenced local variable
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(1083): warning C4101: 'ex': unreferenced local variable
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(1098): warning C4101: 'ex': unreferenced local variable
+c:\users\kevin\desktop\chip8emulator\chip8\chip8unittests\unittest1.cpp(1108): warning C4101: 'ex': unreferenced local variable
+  Chip8Memory.cpp
+  Chip8Input.cpp
+  Chip8GraphicsMemory.cpp
+  Chip8CPU.cpp
+c:\users\kevin\desktop\chip8emulator\chip8\chip8cpu.cpp(50): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\kevin\desktop\chip8emulator\chip8\chip8cpu.cpp(92): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\kevin\desktop\chip8emulator\chip8\chip8cpu.cpp(281): warning C4244: '=': conversion from 'unsigned short' to 'unsigned char', possible loss of data
+  Generating Code...
+     Creating library C:\Users\kevin\Desktop\Chip8Emulator\x64\Debug\Chip8UnitTests.lib and object C:\Users\kevin\Desktop\Chip8Emulator\x64\Debug\Chip8UnitTests.exp
+  Chip8UnitTests.vcxproj -> C:\Users\kevin\Desktop\Chip8Emulator\x64\Debug\Chip8UnitTests.dll
+  Chip8UnitTests.vcxproj -> C:\Users\kevin\Desktop\Chip8Emulator\x64\Debug\Chip8UnitTests.pdb (Partial PDB)

@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Chip8Memory.h"
+#include "Chip8Input.h"
 #include <stack>
 #include <time.h>
 #include <unordered_map>
+#include "Chip8GraphicsMemory.h"
 
 class Chip8CPU
 {
@@ -14,7 +16,7 @@ public:
 	static const unsigned short GRAPHICS_PIXELS = (64 * 32);
 	static const unsigned short NUM_KEYS = 16;
 	static const unsigned short FONTSET_SIZE = 80;
-	Chip8CPU(Chip8Memory* memory);
+	Chip8CPU(Chip8Memory* memory, Chip8GraphicsMemory* gfxMemory, Chip8Input* input);
 	~Chip8CPU();
 	void cycle();
 	void reset();
@@ -26,6 +28,9 @@ public:
 	char getRegisterSP();
 	char getRegisterDT();
 	char getRegisterST();
+	char currentRandomNumber();
+	bool getDrawFlag();
+	void clearDrawFlag();
 	std::stack<unsigned short> getStack();
 private:
 	void initialize();
@@ -33,6 +38,7 @@ private:
 	void clearStack();
 	void loadOpcodes();
 	void loadFontSet();
+	bool pDrawFlag;
 	void executeOpcode(unsigned short opcode);
 	struct
 	{
@@ -45,7 +51,9 @@ private:
 	} registers;
 
 	Chip8Memory* pMemory;
-
+	Chip8GraphicsMemory* pGfxMemory;
+	Chip8Input* pInput;
+	char pRandNum;
 	std::stack<unsigned short> stack;	// Stack
 	OpcodeMap opcodeMap;
 	unsigned char chip8_fontset[FONTSET_SIZE] =

@@ -151,12 +151,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Chip8CPU.h" />
+    <ClInclude Include="..\Chip8GraphicsMemory.h" />
+    <ClInclude Include="..\Chip8Input.h" />
     <ClInclude Include="..\Chip8Memory.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Chip8CPU.cpp" />
+    <ClCompile Include="..\Chip8GraphicsMemory.cpp" />
+    <ClCompile Include="..\Chip8Input.cpp" />
     <ClCompile Include="..\Chip8Memory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

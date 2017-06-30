@@ -30,6 +30,12 @@
     <ClInclude Include="..\Chip8CPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Chip8GraphicsMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Chip8Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -42,6 +48,12 @@
       <Filter>Chip8SourceFiles</Filter>
     </ClCompile>
     <ClCompile Include="..\Chip8CPU.cpp">
+      <Filter>Chip8SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Chip8GraphicsMemory.cpp">
+      <Filter>Chip8SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Chip8Input.cpp">
       <Filter>Chip8SourceFiles</Filter>
     </ClCompile>
   </ItemGroup>
