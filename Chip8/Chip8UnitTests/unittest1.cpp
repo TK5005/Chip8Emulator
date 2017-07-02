@@ -10,12 +10,21 @@ namespace Chip8UnitTests
 {
 	TEST_CLASS(Chip8CPUTests)
 	{
+
 	public:
+		Chip8Memory memory;
+		Chip8GraphicsMemory gfxMemory;
+		Chip8Input input;
+
+		TEST_METHOD_INITIALIZE(initMethod)
+		{
+			memory.clear();
+			gfxMemory.clear();
+			input.clearKeys();
+		}
+
 		TEST_METHOD(InitializeAndResetTest)
 		{
-			Chip8Memory memory;
-			Chip8GraphicsMemory gfxMemory;
-			Chip8Input input;
 			Chip8CPU chip8CPU(&memory, &gfxMemory, &input);
 			Assert::AreEqual((char)0, chip8CPU.getRegisterDT(), L"Chip8CPU Register DT should be 0", LINE_INFO());
 			Assert::AreEqual((char)0, chip8CPU.getRegisterST(), L"Chip8CPU Register ST should be 0", LINE_INFO());
@@ -53,22 +62,21 @@ namespace Chip8UnitTests
 				Assert::AreEqual(chip8_fontset[i], memory.getValue(i), L"Values in memory do not match the proper values in the font set.", LINE_INFO());
 			}
 		}
-
+		
+		
 		TEST_METHOD(_00E0_Test)
 		{
-			Chip8Memory memory;
-			Chip8GraphicsMemory gfxMemory;
-			Chip8Input input;
+			unsigned char codes[] = { 0x00, 0xE0 };
 			Chip8CPU chip8CPU(&memory, &gfxMemory, &input);
 			unsigned short memLocation = 0x020;
 			unsigned char val = 5;
 			gfxMemory.setValue(memLocation, val);
-			memory.setValue(0x200, 0x00);
-			memory.setValue(0x201, 0xE0);
+			memory.loadOpcodes(0x200, codes);
 			chip8CPU.cycle();
 			val = gfxMemory.getValue(memLocation);
 			unsigned char targetVal = 0;
 			Assert::AreEqual(targetVal, val, L"Memory not cleared.", LINE_INFO());
+			Assert::AreEqual((int)0x202, (int)chip8CPU.getRegisterPC(), L"Program should have a value of 0x202", LINE_INFO());
 		}
 
 		TEST_METHOD(_00EE_Test)
@@ -650,6 +658,7 @@ namespace Chip8UnitTests
 			char randNum = chip8CPU.currentRandomNumber();
 			unsigned char val = randNum & 0xBC;
 			Assert::AreEqual((int)val, (int)chip8CPU.getRegisterV(0), L"V0 is incorrect", LINE_INFO());
+			Assert::AreEqual((int)0x202, (int)chip8CPU.getRegisterPC(), L"PC Incorrect", LINE_INFO());
 		}
 
 		TEST_METHOD(_DXYN_Test)

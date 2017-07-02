@@ -1,6 +1,3 @@
-﻿  Chip8CPU.cpp
-c:\users\kevin\desktop\chip8emulator\chip8\chip8cpu.cpp(51): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-c:\users\kevin\desktop\chip8emulator\chip8\chip8cpu.cpp(93): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-c:\users\kevin\desktop\chip8emulator\chip8\chip8cpu.cpp(329): warning C4244: '=': conversion from 'unsigned short' to 'unsigned char', possible loss of data
+﻿  Chip8.cpp
   Chip8.vcxproj -> C:\Users\kevin\Desktop\Chip8Emulator\Debug\Chip8.exe
   Chip8.vcxproj -> C:\Users\kevin\Desktop\Chip8Emulator\Debug\Chip8.pdb (Full PDB)

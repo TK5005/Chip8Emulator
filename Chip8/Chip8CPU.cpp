@@ -15,12 +15,8 @@ Chip8CPU::~Chip8CPU()
 
 }
 
-void Chip8CPU::cycle()
+void Chip8CPU::updateTimers()
 {
-	unsigned short opcode = pMemory->getValue(registers.PC) << 8 | pMemory->getValue(registers.PC + 1);
-
-	executeOpcode(opcode);
-
 	// Update Delay Timer
 	if (registers.DT > 0)
 	{
@@ -36,6 +32,13 @@ void Chip8CPU::cycle()
 		}
 		--registers.ST;
 	}
+}
+
+void Chip8CPU::cycle()
+{
+	unsigned short opcode = pMemory->getValue(registers.PC) << 8 | pMemory->getValue(registers.PC + 1);
+
+	executeOpcode(opcode);
 }
 
 void Chip8CPU::reset()
@@ -117,7 +120,6 @@ void Chip8CPU::clearStack()
 
 void Chip8CPU::loadOpcodes()
 {
-	
 	opcodeMap.emplace(0x00E0, &Chip8CPU::_00E0);
 	opcodeMap.emplace(0x1000, &Chip8CPU::_1NNN);
 	opcodeMap.emplace(0x00EE, &Chip8CPU::_00EE);
@@ -179,7 +181,6 @@ void Chip8CPU::clearDrawFlag()
 
 void Chip8CPU::executeOpcode(unsigned short opcode)
 {
-	printf("\nExecuting Opcode: 0x%X ", opcode);
 	unsigned short searchVal = 0x0000;
 
 	switch (opcode & 0xF000)
@@ -204,17 +205,19 @@ void Chip8CPU::executeOpcode(unsigned short opcode)
 	auto iter = opcodeMap.find(searchVal);
 	if (iter == opcodeMap.end())
 	{
-		printf("Opcode %X not found.\n", opcode);
 		return;
 	}
 	(this->*iter->second)(opcode);
 }
 
+/*
+// 0x00E0
+// Clears the screen
+*/
 void Chip8CPU::_00E0(unsigned short opcode)
 {
-	printf("(Clearing Graphics)");
 	pGfxMemory->clear();
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -223,10 +226,11 @@ void Chip8CPU::_00E0(unsigned short opcode)
 */
 void Chip8CPU::_00EE(unsigned short opcode)
 {
-	printf("(Returning from Subroutine)");
 	registers.PC = stack.top();
 	stack.pop();
+	incrementPC(1);
 }
+
 
 /*
 // 0x1NNN
@@ -235,7 +239,6 @@ void Chip8CPU::_00EE(unsigned short opcode)
 void Chip8CPU::_1NNN(unsigned short opcode)
 {
 	unsigned short address = (opcode & 0x0FFF);
-	printf("(Setting PC to Address: %X)", address);
 	registers.PC = address;
 }
 
@@ -247,7 +250,6 @@ void Chip8CPU::_1NNN(unsigned short opcode)
 void Chip8CPU::_2NNN(unsigned short opcode)
 {
 	unsigned short address = (opcode & 0x0FFF);
-	printf("(Pusing PC(0x%X) to the stack, setting PC to 0x%X)", registers.PC, address);
 	stack.push(registers.PC);
 	registers.PC = address;
 }
@@ -264,13 +266,11 @@ void Chip8CPU::_3XNN(unsigned short opcode)
 	
 	if (registers.V[vIndex] == address)
 	{
-		printf("(Setting PC to 0x%X because register V[%X] equals %X)", (registers.PC + 4), vIndex, address);
-		registers.PC += 4;
+		incrementPC(2);
 	}
 	else
 	{
-		printf("(Setting PC to 0x%X because register V[%X] does not equal %X (it equals %X))", (registers.PC + 2), vIndex, address, registers.V[vIndex]);
-		registers.PC += 2;
+		incrementPC(1);
 	}
 }
 
@@ -286,12 +286,10 @@ void Chip8CPU::_4XNN(unsigned short opcode)
 
 	if (registers.V[vIndex] != address)
 	{
-		printf("(Setting PC to 0x%X because register V[%X] does not equal %X (it equals %X))", (registers.PC + 4), vIndex, address, registers.V[vIndex]);
-		registers.PC += 4;
+		incrementPC(2);
 	}
 	else {
-		printf("(Setting PC to 0x%X because register V[%X] equals %X)", (registers.PC + 2), vIndex, address);
-		registers.PC += 2;
+		incrementPC(1);
 	}
 }
 
@@ -302,17 +300,15 @@ void Chip8CPU::_4XNN(unsigned short opcode)
 */
 void Chip8CPU::_5XY0(unsigned short opcode)
 {
-	int vIndex1 = ((opcode & 0x0F00) >> 8);
-	int vIndex2 = ((opcode & 0x00F0) >> 4);
+	int X = ((opcode & 0x0F00) >> 8);
+	int Y = ((opcode & 0x00F0) >> 4);
 
-	if (registers.V[vIndex1] == registers.V[vIndex2])
+	if (registers.V[X] == registers.V[Y])
 	{
-		printf("(Incrementing the PC to %X because V[%X] equals V[%X])", registers.PC + 4, vIndex1, vIndex2);
-		registers.PC += 4;
+		incrementPC(2);
 	}
 	else {
-		printf("(Incrementing the PC to %X because V[%X] does not equal V[%X])", registers.PC + 2, vIndex1, vIndex2);
-		registers.PC += 2;
+		incrementPC(1);
 	}
 }
 
@@ -325,9 +321,8 @@ void Chip8CPU::_6XNN(unsigned short opcode)
 {
 	int vIndex = ((opcode & 0x0F00) >> 8);
 	unsigned short address = (opcode & 0x00FF);
-	printf("(Putting value %X into register V[%X])", address, vIndex);
 	registers.V[vIndex] = address;
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -340,8 +335,7 @@ void Chip8CPU::_7XNN(unsigned short opcode)
 	int vIndex = ((opcode & 0x0F00) >> 8);
 	unsigned short address = (opcode & 0x00FF);
 	registers.V[vIndex] += address;
-	printf("Adding %X to V[%X], V[%X] is now %X", address, vIndex, vIndex, registers.V[vIndex]);
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -351,10 +345,10 @@ void Chip8CPU::_7XNN(unsigned short opcode)
 */
 void Chip8CPU::_8XY0(unsigned short opcode)
 {
-	int vIndex1 = ((opcode & 0x0F00) >> 8);
-	int vIndex2 = ((opcode & 0x00F0) >> 4);
-	registers.V[vIndex1] = registers.V[vIndex2];
-	registers.PC += 2;
+	int X = ((opcode & 0x0F00) >> 8);
+	int Y = ((opcode & 0x00F0) >> 4);
+	registers.V[X] = registers.V[Y];
+	incrementPC(1);
 }
 
 /*
@@ -364,10 +358,10 @@ void Chip8CPU::_8XY0(unsigned short opcode)
 */
 void Chip8CPU::_8XY1(unsigned short opcode)
 {
-	int vIndex1 = ((opcode & 0x0F00) >> 8);
-	int vIndex2 = ((opcode & 0x00F0) >> 4);
-	registers.V[vIndex1] |= registers.V[vIndex2];
-	registers.PC += 2;
+	int X = ((opcode & 0x0F00) >> 8);
+	int Y = ((opcode & 0x00F0) >> 4);
+	registers.V[X] |= registers.V[Y];
+	incrementPC(1);
 }
 
 /*
@@ -377,10 +371,10 @@ void Chip8CPU::_8XY1(unsigned short opcode)
 */
 void Chip8CPU::_8XY2(unsigned short opcode)
 {
-	int vIndex1 = ((opcode & 0x0F00) >> 8);
-	int vIndex2 = ((opcode & 0x00F0) >> 4);
-	registers.V[vIndex1] &= registers.V[vIndex2];
-	registers.PC += 2;
+	int X = ((opcode & 0x0F00) >> 8);
+	int Y = ((opcode & 0x00F0) >> 4);
+	registers.V[X] &= registers.V[Y];
+	incrementPC(1);
 }
 
 /*
@@ -390,10 +384,10 @@ void Chip8CPU::_8XY2(unsigned short opcode)
 */
 void Chip8CPU::_8XY3(unsigned short opcode)
 {
-	int vIndex1 = ((opcode & 0x0F00) >> 8);
-	int vIndex2 = ((opcode & 0x00F0) >> 4);
-	registers.V[vIndex1] ^= registers.V[vIndex2];
-	registers.PC += 2;
+	int X = ((opcode & 0x0F00) >> 8);
+	int Y = ((opcode & 0x00F0) >> 4);
+	registers.V[X] ^= registers.V[Y];
+	incrementPC(1);
 }
 
 /*
@@ -405,12 +399,14 @@ void Chip8CPU::_8XY3(unsigned short opcode)
 */
 void Chip8CPU::_8XY4(unsigned short opcode)
 {
-	int vIndex1 = ((opcode & 0x0F00) >> 8);
-	int vIndex2 = ((opcode & 0x00F0) >> 4);
-	unsigned short value = registers.V[vIndex1] + registers.V[vIndex2];
-	registers.V[vIndex1] = (value & 0x00FF);
-	registers.V[0xF] = (value > 0xFF) ? 1 : 0;
-	registers.PC += 2;
+	int X = ((opcode & 0x0F00) >> 8);
+	int Y = ((opcode & 0x00F0) >> 4);
+	if (registers.V[Y] > (0xFF - registers.V[X]))
+		registers.V[0xF] = 1; //carry
+	else
+		registers.V[0xF] = 0;
+	registers.V[X] += registers.V[Y];
+	incrementPC(1);
 }
 
 /*
@@ -420,11 +416,12 @@ void Chip8CPU::_8XY4(unsigned short opcode)
 */
 void Chip8CPU::_8XY5(unsigned short opcode)
 {
-	int X = ((opcode & 0x0F00) >> 8);
-	int Y = ((opcode & 0x00F0) >> 4);
-	registers.V[0xF] = (registers.V[X] > registers.V[Y]) ? 1 : 0;
-	registers.V[X] = registers.V[X] - registers.V[Y];
-	registers.PC += 2;
+	if (registers.V[(opcode & 0x00F0) >> 4] > registers.V[(opcode & 0x0F00) >> 8])
+		registers.V[0xF] = 0; // there is a borrow
+	else
+		registers.V[0xF] = 1;
+	registers.V[(opcode & 0x0F00) >> 8] -= registers.V[(opcode & 0x00F0) >> 4];
+	incrementPC(1);
 }
 
 /*
@@ -434,11 +431,9 @@ void Chip8CPU::_8XY5(unsigned short opcode)
 */
 void Chip8CPU::_8XY6(unsigned short opcode)
 {
-	int X = ((opcode & 0x0F00) >> 8);
-	unsigned short val = registers.V[X];
-	registers.V[0xF] = registers.V[X] & 0x1;
-	registers.V[X] = registers.V[X] >> 1;
-	registers.PC += 2;
+	registers.V[0xF] = registers.V[(opcode & 0x0F00) >> 8] & 0x1;
+	registers.V[(opcode & 0x0F00) >> 8] >>= 1;
+	incrementPC(1);
 }
 
 /*
@@ -448,11 +443,12 @@ void Chip8CPU::_8XY6(unsigned short opcode)
 */
 void Chip8CPU::_8XY7(unsigned short opcode)
 {
-	int X = ((opcode & 0x0F00) >> 8);
-	int Y = ((opcode & 0x00F0) >> 4);
-	registers.V[0xF] = (registers.V[Y] > registers.V[X]) ? 1 : 0;
-	registers.V[X] = registers.V[Y] - registers.V[X];
-	registers.PC += 2;
+	if (registers.V[(opcode & 0x0F00) >> 8] > registers.V[(opcode & 0x00F0) >> 4])	// VY-VX
+		registers.V[0xF] = 0; // there is a borrow
+	else
+		registers.V[0xF] = 1;
+	registers.V[(opcode & 0x0F00) >> 8] = registers.V[(opcode & 0x00F0) >> 4] - registers.V[(opcode & 0x0F00) >> 8];
+	incrementPC(1);
 }
 
 /*
@@ -462,10 +458,9 @@ void Chip8CPU::_8XY7(unsigned short opcode)
 */
 void Chip8CPU::_8XYE(unsigned short opcode)
 {
-	int X = ((opcode & 0x0F00) >> 8);
-	registers.V[0xF] = registers.V[X] >> 7;
-	registers.V[X] <<= 1;
-	registers.PC += 2;
+	registers.V[0xF] = registers.V[(opcode & 0x0F00) >> 8] >> 7;
+	registers.V[(opcode & 0x0F00) >> 8] <<= 1;
+	incrementPC(1);
 }
 
 /*
@@ -477,7 +472,13 @@ void Chip8CPU::_9XY0(unsigned short opcode)
 {
 	int X = ((opcode & 0x0F00) >> 8);
 	int Y = ((opcode & 0x00F0) >> 4);
-	registers.PC += (registers.V[X] != registers.V[Y]) ? 4 : 2;
+	if (registers.V[X] != registers.V[Y])
+	{
+		incrementPC(2);
+	}
+	else {
+		incrementPC(1);
+	}
 }
 
 /*
@@ -489,8 +490,7 @@ void Chip8CPU::_ANNN(unsigned short opcode)
 {
 	unsigned short address = (opcode & 0x0FFF);
 	registers.I = address;
-	printf("(Setting I to %X)", address);
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -500,7 +500,7 @@ void Chip8CPU::_ANNN(unsigned short opcode)
 */
 void Chip8CPU::_BNNN(unsigned short opcode)
 {
-	registers.PC = (opcode & 0x0FFF) + registers.V[0];
+	registers.PC = ((opcode & 0x0FFF) + registers.V[0]);
 }
 
 /*
@@ -511,10 +511,11 @@ void Chip8CPU::_BNNN(unsigned short opcode)
 */
 void Chip8CPU::_CXNN(unsigned short opcode)
 {
-	pRandNum = rand() % 256;
+	pRandNum = rand() % 0xFF;
 	char X = ((opcode & 0x0F00) >> 8);
 	char NN = (opcode & 0x00FF);
-	registers.V[X] = pRandNum & NN;
+	registers.V[X] = (pRandNum & NN);
+	incrementPC(1);
 }
 
 /*
@@ -534,8 +535,6 @@ void Chip8CPU::_DXYN(unsigned short opcode)
 	unsigned short height = opcode & 0x000F;
 	unsigned short pixel;
 
-	printf("(Drawing pixel at X=%u Y=%u with Height=%u)", x, y, height);
-
 	registers.V[0xF] = 0;
 	for (int yline = 0; yline < height; yline++)
 	{
@@ -554,7 +553,7 @@ void Chip8CPU::_DXYN(unsigned short opcode)
 	}
 
 	pDrawFlag = true;
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -568,10 +567,10 @@ void Chip8CPU::_EX9E(unsigned short opcode)
 	int X = ((opcode & 0x0F00) >> 8);
 	if (pInput->getKeyPressed(registers.V[X]))
 	{
-		registers.PC += 4;
+		incrementPC(2);
 	}
 	else {
-		registers.PC += 2;
+		incrementPC(1);
 	}
 }
 
@@ -584,12 +583,12 @@ void Chip8CPU::_EX9E(unsigned short opcode)
 void Chip8CPU::_EXA1(unsigned short opcode)
 {
 	int X = ((opcode & 0x0F00) >> 8);
-	if (pInput->getKeyPressed(registers.V[X]))
+	if (!pInput->getKeyPressed(registers.V[X]))
 	{
-		registers.PC += 2;
+		incrementPC(2);
 	}
 	else {
-		registers.PC += 4;
+		incrementPC(1);
 	}
 }
 
@@ -602,7 +601,7 @@ void Chip8CPU::_FX07(unsigned short opcode)
 {
 	int X = ((opcode & 0x0F00) >> 8);
 	registers.V[X] = registers.DT;
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -625,10 +624,12 @@ void Chip8CPU::_FX0A(unsigned short opcode)
 	}
 
 	// If we didn't received a keypress, skip this cycle and try again.
-	if (keyPress)
+	if (!keyPress)
 	{
-		registers.PC += 2;
+		return;
 	}
+
+	incrementPC(1);
 }
 
 /*
@@ -640,7 +641,7 @@ void Chip8CPU::_FX15(unsigned short opcode)
 {
 	int X = ((opcode & 0x0F00) >> 8);
 	registers.DT = registers.V[X];
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -652,7 +653,7 @@ void Chip8CPU::_FX18(unsigned short opcode)
 {
 	int X = ((opcode & 0x0F00) >> 8);
 	registers.ST = registers.V[X];
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -663,8 +664,12 @@ void Chip8CPU::_FX18(unsigned short opcode)
 void Chip8CPU::_FX1E(unsigned short opcode)
 {
 	int X = ((opcode & 0x0F00) >> 8);
+	if (registers.I + registers.V[X] > 0xFFF)	// VF is set to 1 when range overflow (I+VX>0xFFF), and 0 when there isn't.
+		registers.V[0xF] = 1;
+	else
+		registers.V[0xF] = 0;
 	registers.I += registers.V[X];
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -678,7 +683,7 @@ void Chip8CPU::_FX29(unsigned short opcode)
 {
 	int X = ((opcode & 0x0F00) >> 8);
 	registers.I = registers.V[X] * 0x5;
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -694,7 +699,7 @@ void Chip8CPU::_FX33(unsigned short opcode)
 	pMemory->setValue(registers.I, registers.V[X] / 100);
 	pMemory->setValue(registers.I + 1, (registers.V[X] / 10) % 10);
 	pMemory->setValue(registers.I + 2, (registers.V[X] % 100) % 10);
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -712,7 +717,7 @@ void Chip8CPU::_FX55(unsigned short opcode)
 	}
 	// On the original interpreter, when the operation is done, I = I + X + 1.
 	registers.I += X + 1;
-	registers.PC += 2;
+	incrementPC(1);
 }
 
 /*
@@ -731,5 +736,10 @@ void Chip8CPU::_FX65(unsigned short opcode)
 
 	// On the original interpreter, when the operation is done, I = I + X + 1.
 	registers.I += X + 1;
-	registers.PC += 2;
+	incrementPC(1);
+}
+
+void Chip8CPU::incrementPC(int amount)
+{
+	registers.PC += (2 * amount);
 }

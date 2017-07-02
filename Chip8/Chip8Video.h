@@ -9,5 +9,7 @@ public:
 	void drawImage();
 private:
 	int pPixelSize = 8;
+	sf::RectangleShape pixels[64 * 32];
 	Chip8GraphicsMemory* pGfxMemory;
+	void setupPixels();
 };

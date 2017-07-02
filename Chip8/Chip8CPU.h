@@ -31,9 +31,11 @@ public:
 	char currentRandomNumber();
 	bool getDrawFlag();
 	void clearDrawFlag();
+	void updateTimers();
 	std::stack<unsigned short> getStack();
 private:
 	void initialize();
+	void incrementPC(int);
 	void clearRegisters();
 	void clearStack();
 	void loadOpcodes();
@@ -49,7 +51,6 @@ private:
 		unsigned char DT;
 		unsigned char ST;
 	} registers;
-
 	Chip8Memory* pMemory;
 	Chip8GraphicsMemory* pGfxMemory;
 	Chip8Input* pInput;

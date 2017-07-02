@@ -17,6 +17,7 @@ public:
 	static const unsigned short MEMORY_SIZE = 4096;
 	Chip8Memory();
 	~Chip8Memory();
+	bool loadOpcodes(unsigned short startLocation, unsigned char codes[]);
 	bool loadOpcodes(unsigned short startLocation, const char* filename);
 	unsigned char getValue(unsigned short location);
 	void setValue(unsigned short location, unsigned char value);

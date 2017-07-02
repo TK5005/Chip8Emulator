@@ -10,6 +10,15 @@ Chip8Memory::~Chip8Memory()
 {
 }
 
+bool Chip8Memory::loadOpcodes(unsigned short startLocation, unsigned char codes[])
+{
+	for (unsigned short i = 0; i < sizeof(codes); ++i)
+	{
+		memory[startLocation + i] = codes[i];
+	}
+	return true;
+}
+
 bool Chip8Memory::loadOpcodes(unsigned short startLocation, const char* filename)
 {
 	printf("Loading: %s\n", filename);
